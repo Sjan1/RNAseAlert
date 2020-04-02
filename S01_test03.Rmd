@@ -1,0 +1,244 @@
+---
+title: "RNAseAlert kit test 03"
+author: "Jan Sklenar"
+date: "01/04/2020"
+output: html_document
+editor_options: 
+chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# What is causing suppression of fluorescense when Cas13 is added?
+## Design
+
+- Cas13/impurities had an effect on fluorescence.
+- We need to test Cas13 with and without its buffer to see what component has bearing on RFU. 
+- We need to test DEPC in HEPES again, the first test did not work.
+- Phosphate in higher concentration and generally ionic strength have profound effect on Benzoase. We can try 20mM Phosphate buffer.
+
+#### Chemicals used in the reaction,
+added in the following order in replicates of four, in squares on 96 well plate:
+
+1. 20mM HEPES ph 7.0 buffer
+2. Benzoase(TM)nuclease, 25U/ml stock solution
+3. DEPC (inhibitor), 0.1% in the reaction 
+4. Imidazole (inhibitor quencher), 10mM in the reaction
+5. Benzoase(TM)nuclease (fresh enzyme after the background has been inhibited)
+6. Cas13 2mg/ml was diluted: 5ul/153ul in Storage buffer (Josie), which gives 10x concentrated protein solution. For this test it is diluted to give 1x, 0.2x, and  0.01X diluted prtoein and bufer. 
+7. substrate (fluorescein-RNA conjugate), two tubes designed for one test are here use for all the test - diluted to use 5ul in 48 replicates.  
+
+#### Test conditions (volumes in microliters per well)
+![Copy of original table in Excel.](data/protocol3.svg)
+
+#### Here is Thermo [kit manual](https://www.thermofisher.com/document-connect/document-connect.html?url=https%3A%2F%2Fassets.thermofisher.com%2FTFS-Assets%2FLSG%2Fmanuals%2Ffm_1964.pdf&title=Uk5hc2VBbGVydCZ0cmFkZTsgTGFiIFRlc3QgS2l0IEluc3RydWN0aW9uIE1hbnVhbA==)
+
+
+```{r libraries, echo=FALSE, include=FALSE}
+#library("plyr")
+library("dplyr")
+#library("tidyr")
+library("ggplot2")
+```
+
+## Data preparation
+### Read in data and parse some sample names 
+```{r data, echo=FALSE, include=FALSE}
+## read in raw data
+raw <- read.delim("data/200420_RNAaseAlert_test3.txt",stringsAsFactors = FALSE)
+colnames(raw)
+str(raw)
+head(raw)
+#' remove column
+raw <- raw[,1:10]
+#' change names
+colnames(raw)[7]
+colnames(raw)[7] <- "MeasTimeSec"
+
+#' parse 'Sample' to obtain sample number 'SampleNo'
+raw$Sample[1]
+substr(raw$Sample,1,regexpr(' ', raw$Sample)-1) 
+raw$SampleNo <- substr(raw$Sample,1,regexpr(' ', raw$Sample)-1)
+
+#' in the same way extract replicate number - 'RepNo'
+substr(raw$Sample,regexpr(' ', raw$Sample)+1, regexpr('/', raw$Sample)-1)
+raw$RepNo <- substr(raw$Sample,regexpr(' ', raw$Sample)+1, regexpr('/', raw$Sample)-1)
+
+#' remove white space from 'Well' sting
+substr(raw$Well, 2, regexpr('$', raw$Well))[1:5]
+raw$Well<- substr(raw$Well, 2, regexpr('$', raw$Well))
+head(raw) 
+str(raw)
+```
+
+### Corrections
+Errors happen, see the table above.
+```{r corrections}
+## ## Condition 1 and 2 are the same thing. Create new SampleComb where 2 is replace with 1
+
+raw$SampleComb <- raw$SampleNo 
+raw[raw$SampleComb==2,"SampleComb"] <- 1
+
+unique(raw$SampleNo)
+unique(raw$SampleComb)
+#' Which means the control with +RNAse has 8 replicates, unlike all the other conditions that has only 4. 
+```
+
+
+
+### Subset of data for plotting
+```{r cleaned data}
+## show cleaned data with selected columns
+#' Well, Sample, SampleNo, RepNo, MeasTimeSec, RFU
+df <- raw[,c(3,6,11,12,7,8,13)] 
+head(df) 
+str(df)
+```
+## Plots
+### All data
+```{r plots}
+#' all the data
+#plot(x=raw$MeasTimeSec,y=raw$RFU)
+
+#' colour labeled samples
+ggplot(data = df) +
+  aes(x = MeasTimeSec, y=RFU) +
+  geom_point(aes(color=SampleNo))
+```
+### Adjustments (if needed)
+```{r final result}
+# ## some adjustments
+# ## Use summary statistics (mean) to find and remove obvious  outlier in  sample 3
+# #' means of all replicates of sample 3 
+# dfstat <- df %>% filter(SampleNo==1) %>% group_by(SampleNo,RepNo) %>% summarise(mean=mean(RFU))
+# dfstat
+# #' Data that should be removed
+# filter(df,SampleNo == 3 & RepNo == 3)
+# #' I could not invert the filter though
+# #' But it is the same as leaving out all the measurement from the well E01
+# dfs <- filter(df, Well != "E06")
+# #' all the measurements
+# length(rownames(df))
+# #'after 12 datapoints were removed
+# length(rownames(dfs))
+```
+### All data with description
+```{r }
+## LOESS regression
+p <- ggplot(data = df) +
+  aes(x = MeasTimeSec, y=RFU) +
+  geom_smooth(aes(color=SampleNo)) +
+  geom_point(aes(colour=SampleNo))
+
+  p + labs(title = "RNAseAlert Test (with fresh substrate)", x = "min",   y = "RFU", color = "Legend Title\n") +
+  coord_cartesian(xlim = c(0,1500)) +
+  scale_colour_discrete(name="Conditions",
+                      breaks=c(1,2,3,4,5,6,7,8,9,10,11,12),
+                      labels=c("1: HEPES+RNAse",
+                               "2: HEPES+RNAse",
+                               "3: HEPES+RNAse+DEPC",
+                               "4: HEPES+RNAse+DEPC+RNAse",
+                               "5: Cas 0.01x",
+                               "6: Cas 0.2x",
+                               "7: Cas 1x",
+                               "8: SB buffer 0.01x",
+                               "9: SB buffer 0.2x",
+                               "10: SB buffer 1x",
+                               "11: PB+RNAse",
+                               "12: PB+RNAse+DEPC"))
+```
+Not very readable. Let us split it.
+
+### Ploting subsets by conditions being tested
+This chunk is not going to be very ellegant; The annotation of all plots differ and we compare the same control with other measuremetns several time. Facet_wrap would be more elegant, but it does not give me flexibility to group plots that is neede here.   
+```{r subsets}
+## HEPES_DEPC
+p <- raw[raw$SampleComb==1|raw$SampleComb==3|raw$SampleComb==4,]
+## LOESS regression
+p <- ggplot(data = p) +
+  aes(x = MeasTimeSec, y=RFU) +
+  geom_smooth(aes(color=SampleComb)) +
+  geom_point(aes(colour=SampleComb))
+
+  p + labs(title = "RNAseAlert Test: HEPES DEPC", x = "min",   y = "RFU", color = "Legend Title\n") +
+  coord_cartesian(xlim = c(0,1500)) +
+  scale_colour_discrete(name="Conditions",
+                      breaks=c(1,3,4),
+                      labels=c("1-2: HEPES+RNAse",
+                               "3: +DEPC",
+                               "4: +DEPC+RNAse"))
+
+## HEPES Cas13
+p <- raw[raw$SampleComb==1|raw$SampleComb==5|raw$SampleComb==6|raw$SampleComb==7,]
+## LOESS regression
+p <- ggplot(data = p) +
+  aes(x = MeasTimeSec, y=RFU) +
+  geom_smooth(aes(color=SampleComb)) +
+  geom_point(aes(colour=SampleComb))
+
+  p + labs(title = "RNAseAlert Test: HEPES Cas13", x = "min",   y = "RFU", color = "Legend Title\n") +
+  coord_cartesian(xlim = c(0,1500)) +
+  scale_colour_discrete(name="Conditions",
+                      breaks=c(1,5,6,7),
+                      labels=c("1-2: HEPES+RNAse",
+                               "5: +Cas 0.01x",
+                               "6: +Cas 0.2x",
+                               "7: +Cas 1x"))
+
+## HEPES Cas13 buffer
+p <- raw[raw$SampleComb==1|raw$SampleComb==8|raw$SampleComb==9|raw$SampleComb==10,]
+## LOESS regression
+p <- ggplot(data = p) +
+  aes(x = MeasTimeSec, y=RFU) +
+  geom_smooth(aes(color=SampleComb)) +
+  geom_point(aes(colour=SampleComb))
+
+  p + labs(title = "RNAseAlert Test: HEPES Cas13 buffer", x = "min",   y = "RFU", color = "Legend Title\n") +
+  coord_cartesian(xlim = c(0,1500)) +
+  scale_colour_discrete(name="Conditions",
+                      breaks=c(1,8,9,10),
+                      labels=c("1-2: HEPES+RNAse",
+                               "8: +Cas 0.01x",
+                               "9: +Cas 0.2x",
+                               "10: +Cas 1x"))
+
+## Phosphate buffer
+p <- raw[raw$SampleComb==1|raw$SampleComb==11|raw$SampleComb==12,]
+## LOESS regression
+p <- ggplot(data = p) +
+  aes(x = MeasTimeSec, y=RFU) +
+  geom_smooth(aes(color=SampleComb)) +
+  geom_point(aes(colour=SampleComb))
+
+  p + labs(title = "RNAseAlert Test: Phosphate buffer", x = "min",   y = "RFU", color = "Legend Title\n") +
+  coord_cartesian(xlim = c(0,1500)) +
+  scale_colour_discrete(name="Conditions",
+                      breaks=c(1,11,12),
+                      labels=c("1-2: HEPES+RNAse",
+                               "11: PB+RNAse",
+                               "12: PB+RNAse+DEPC"))
+  
+    
+```
+
+## Conclutions
+    
+### Good:
+- DEPC inhibition works.
+- Phosphate buffer in lower concentration works, the acitvity is lower.
+
+ 
+### Not very good:
+- The reaction were too diluted by mistake. 
+- It seems Cas13 storage buffer inhibits the signal. 
+
+### What next:
+- We need to test real situation, Benzoase activity is irelevant after all.
+- Now we know the assay works and some limits, we need start measuring Cas13 activity. 
+
+-----------------  
+-----------------
+
+
+
