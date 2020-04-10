@@ -18,7 +18,7 @@ All the data are shared on GitHub [here](https://github.com/Sjan1/RNAseAlert)
 
 ---
 <br/>
-### Links to results
+### Direct links to the results
 
 #### Test 01: [Test of the old kit](http://htmlpreview.github.io/?https://github.com/Sjan1/RNAseAlert/blob/master/S01_test01.html) 
 The old kit is dead!
@@ -26,7 +26,15 @@ The old kit is dead!
 New substrate works!
 #### Test 03: [DEPC inhibitor works](http://htmlpreview.github.io/?https://github.com/Sjan1/RNAseAlert/blob/master/S01_test03.html)
 DEPC inhibition works!
-#### Test 04: [nothing yet...](...)
+#### Test 04: [Cas13 with guide and target RNA](http://htmlpreview.github.io/?https://github.com/Sjan1/RNAseAlert/blob/master/S01_test04.html)
+This did not work, repeat it with minor changes.
+#### Test 05: [Repeat: Cas13 with guide and target RNA](http://htmlpreview.github.io/?https://github.com/Sjan1/RNAseAlert/blob/master/S01_test05_RNA.html)
+This did not work either.
+
+
+
+
+
 
 <br/><br/>
 
