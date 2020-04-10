@@ -169,7 +169,7 @@ p <- ggplot(data = p) +
   geom_point(aes(colour=SampleNo))
 
 
-p + labs(title = "RNAseAlert Test (with fresh substrate)", x = "sec",   y = "RFU", color = "Legend Title\n") +
+p + labs(title = "Cas RNAse activity test", x = "sec",   y = "RFU", color = "Legend Title\n") +
   coord_cartesian(xlim = c(0,1000)) +
   scale_colour_discrete(name="Conditions",
                       breaks=c(1,2,3,4,5,7,9),
@@ -190,12 +190,12 @@ p + labs(title = "RNAseAlert Test (with fresh substrate)", x = "sec",   y = "RFU
 
 ## Conclutions
 ### Observations
-- The air and no Cas13 are the same - negative, all the other samples show some activity. That means there is an activity in Cas13.
-- This activity, however is not specific. While without guide-RNA RNAse activity is the hihest, with the other recation components it is noticebly lower. It seems these components inhibit thi non specific  activity or interfere with fluorescence detection.
+- Samples "air" and "no Cas13" are the same - negative, all the other samples show some activity. That means there is an activity in Cas13.
+- This activity, however, is not specific. While without guide-RNA RNAse activity is the highest, with the other reaction components in, it is noticeably lower. It seems these components inhibit the activity or interfere with fluorescence detection.
 - The control with Benzoase is convincing engouh. Still I would expect a bit higher absolute RFU values.
 
 ### What next:
-- ?
+
 
 
 
