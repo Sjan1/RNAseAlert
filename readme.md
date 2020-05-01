@@ -30,7 +30,8 @@ DEPC inhibition works!
 This did not work, repeat it with minor changes.
 #### Test 05: [Repeat: Cas13 with guide and target RNA](http://htmlpreview.github.io/?https://github.com/Sjan1/RNAseAlert/blob/master/S01_test05_RNA.html)
 This did not work either.
-
+#### Test 06: [New batch of Cas13 with guide and target DNA](http://htmlpreview.github.io/?https://github.com/Sjan1/RNAseAlert/blob/master/S01_test06_DNA.html)
+#### Test 06-2 benzoase: [New batch of Cas13 with guide and target DNA - benzoase treated and remeasured](https://github.com/Sjan1/RNAseAlert/blob/master/S01_test06_DNA_Benz.html)
 
 
 
