@@ -32,6 +32,9 @@ This did not work, repeat it with minor changes.
 This did not work either.
 #### Test 06: [New batch of Cas13 with guide and target DNA](http://htmlpreview.github.io/?https://github.com/Sjan1/RNAseAlert/blob/master/S01_test06_DNA.html)
 #### Test 06-2 benzoase: [New batch of Cas13 with guide and target DNA - benzoase treated and remeasured](http://htmlpreview.github.io/?https://github.com/Sjan1/RNAseAlert/blob/master/S01_test06_DNA_Benz.html)
+Something is wrong with the detection assay. We need to test the substrate and buffer, possible other components.
+#### Test 07 substrate: [Test of different substrate batches in RNAaseAlert assay](http://htmlpreview.github.io/?https://github.com/Sjan1/RNAseAlert/blob/master/S01_test07_Substrate.html)
+#### Test 07-2 buffer: [Test of different buffers in RNAaseAlert assay only](http://htmlpreview.github.io/?https://github.com/Sjan1/RNAseAlert/blob/master/S01_test07-2_Buffer.html)
 
 
 
