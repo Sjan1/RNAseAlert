@@ -35,8 +35,9 @@ This did not work either.
 Something is wrong with the detection assay. We need to test the substrate and buffer, possible other components.
 #### Test 07 substrate: [Test of different substrate batches in RNAaseAlert assay](http://htmlpreview.github.io/?https://github.com/Sjan1/RNAseAlert/blob/master/S01_test07_Substrate.html)
 #### Test 07-2 buffer: [Test of different buffers in RNAaseAlert assay only](http://htmlpreview.github.io/?https://github.com/Sjan1/RNAseAlert/blob/master/S01_test07-2_Buffer.html)
-
-
+#### Test 08-1: [Test of DNA target](http://htmlpreview.github.io/?https://github.com/Sjan1/RNAseAlert/blob/master/S01_test08_DNA.html)
+#### Test 08-2: [Test of DNA target 24h later](http://htmlpreview.github.io/?https://github.com/Sjan1/RNAseAlert/blob/master/S01_test08_DNA.html)
+#### Test 08-3: [Test of DNA target 24h later benzoase control](http://htmlpreview.github.io/?https://github.com/Sjan1/RNAseAlert/blob/master/S01_test08_DNA.html)
 
 
 
