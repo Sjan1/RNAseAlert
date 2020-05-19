@@ -38,7 +38,8 @@ Something is wrong with the detection assay. We need to test the substrate and b
 #### Test 08-1: [Test of DNA target](http://htmlpreview.github.io/?https://github.com/Sjan1/RNAseAlert/blob/master/S01_test08_DNA.html)
 #### Test 08-2: [Test of DNA target 24h later](http://htmlpreview.github.io/?https://github.com/Sjan1/RNAseAlert/blob/master/S01_test08_DNA.html)
 #### Test 08-3: [Test of DNA target 24h later benzoase control](http://htmlpreview.github.io/?https://github.com/Sjan1/RNAseAlert/blob/master/S01_test08_DNA.html)
-
+#### Test 09-1: [Test of Cas13 purification stages-  quick and dirty](http://htmlpreview.github.io/?https://github.com/Sjan1/RNAseAlert/blob/master/S01_test09_Cas13_initial.html)
+#### Test 09-2: [Test of Cas13 purification stages - all with replicates](http://htmlpreview.github.io/?https://github.com/Sjan1/RNAseAlert/blob/master/S01_test09-2_Cas13_all.html)
 
 
 <br/><br/>
