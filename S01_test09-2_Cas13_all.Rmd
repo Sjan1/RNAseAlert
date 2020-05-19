@@ -1,0 +1,233 @@
+---
+title: "RNAseAlert assay 09-2: Cas13 purification"
+author: "Jan Sklenar"
+date: "18/05/2020"
+output: html_document
+editor_options: 
+chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Cas13 activity test follwed through purification steps.
+This includes replicates and more substrate than assay 09.
+
+## Protocol:
+![Copy of the original Excel table.](data/protocol9-2.svg)
+
+#### Original RNAaseAlert [kit manual](https://www.thermofisher.com/document-connect/document-connect.html?url=https%3A%2F%2Fassets.thermofisher.com%2FTFS-Assets%2FLSG%2Fmanuals%2Ffm_1964.pdf&title=Uk5hc2VBbGVydCZ0cmFkZTsgTGFiIFRlc3QgS2l0IEluc3RydWN0aW9uIE1hbnVhbA==)
+
+
+```{r libraries, echo=FALSE, include=FALSE}
+#library("plyr")
+library("dplyr")
+#library("tidyr")
+library("ggplot2")
+```
+
+## Data preparation
+### Read in the data and parse some sample names 
+```{r data, echo=TRUE, include=TRUE}
+## read in raw data
+raw <- read.delim("data/200518_Cas13_02_all2020-05-18T171020.txt",stringsAsFactors = FALSE)
+colnames(raw)
+
+#' remove 'X' column
+raw <- raw[,1:10]
+#' change names
+colnames(raw)[7]
+colnames(raw)[7] <- "MeasTimeSec"
+
+#' parse 'Sample' to obtain sample number 'SampleNo'
+raw$Sample[1]
+raw$Sample[57]
+#substr(raw$Sample,1,regexpr(' ', raw$Sample)-1) 
+raw$SampleNo <- substr(raw$Sample,1,regexpr(' ', raw$Sample)-1)
+
+#' in the same way extract replicate number - 'RepNo'
+#substr(raw$Sample,regexpr(' ', raw$Sample)+1, regexpr('/', raw$Sample)-1)
+raw$RepNo <- substr(raw$Sample,regexpr(' ', raw$Sample)+1, regexpr('/', raw$Sample)-1)
+
+#' remove white space from 'Well' sting
+#substr(raw$Well, 2, regexpr('$', raw$Well))[1:5]
+raw$Well<- substr(raw$Well, 2, regexpr('$', raw$Well))
+
+#' convert SampleNo to factor in order it to sort nicely in ggplots
+raw$SampleNo <- as.factor(raw$SampleNo)
+raw$SampleNo <- factor(raw$SampleNo, c(seq(1:15),"air")) 
+unique(raw$SampleNo)
+#' View(raw) 
+#'str(raw)
+```
+
+### Corrections
+Not this time.
+
+```{r corrections, include=FALSE, echo=FALSE, eval=FALSE}
+## ## Condition 1 and 2 are the same thing. Create new SampleComb where 2 is replace with 1
+
+raw$SampleComb <- raw$SampleNo 
+raw[raw$SampleComb==2,"SampleComb"] <- 1
+
+unique(raw$SampleNo)
+unique(raw$SampleComb)
+#' Which means the control with +RNAse has 8 replicates, unlike all the other conditions that has only 4. 
+```
+
+
+
+### Subset of data for plotting
+```{r cleaned data}
+## Selected (cleaned) data, only columns needed for plotting
+#' Well, Sample, SampleNo, RepNo, MeasTimeSec, RFU
+colnames(raw)
+df <- raw[,c(3,6,7,8,11,12)] 
+head(df) 
+#View(df)
+str(df)
+table(is.na(df))
+```
+## Plots
+### All data
+```{r plots, eval=FALSE, include=FALSE, echo=FALSE}
+#' all the data
+#plot(x=raw$MeasTimeSec,y=raw$RFU)
+
+#' colour by samples
+ggplot(data = df) +
+  aes(x = MeasTimeSec, y=RFU) +
+  geom_point(aes(color=SampleNo))
+```
+
+
+
+```{r final result, include=TRUE, eval=TRUE, echo=FALSE}
+## Adjustments (only when needed)
+
+## Use summary statistics (mean) to find and remove obvious  outliers 
+#' means of all replicates of sample 3
+dfstat <- df %>% filter(SampleNo==1|SampleNo==2|SampleNo==3|SampleNo==4|SampleNo==5|SampleNo==6|SampleNo==7|SampleNo==8) %>% group_by(SampleNo,RepNo) %>% summarise(mean=mean(RFU))
+dfstat
+#View(dfstat)
+
+#' Data that should be removed
+df %>% filter(SampleNo==1 & RepNo==1)
+filter(df,SampleNo == 3 & RepNo == 1)
+
+#View(df)
+#' I do not know how to invert the filter 
+#' Though it is the same as leaving out all the measurement from the wells in the first column
+dfs <- filter(df, Well != "A01" & Well != "B01" & Well != "C01"&  Well != "D01"& Well != "E01"& Well != "F01" & Well != "G01"& Well != "H01")
+#' all the measurements
+length(rownames(df))
+#'removinf onw column should remove 8*60 datapoints
+length(rownames(dfs))
+#' Correct - replace the original data with reduced dataframe  
+df <- dfs
+table(is.na(df))
+```
+
+### Samples and conditions for plot legends
+
+
+```{r }
+## Description
+name <- "Samples"
+breaks <- as.character(c(seq(1:15),"air"))
+str(breaks)
+breaks
+labels <-  c("1: (+)RNA-O, crude, inhib",
+            "2: (-)RNA-O, crude, inhib",
+            "3: (+)RNA-O, crude",
+            "4: (-)RNA-O, crude",
+            "5: (+)RNA-S, crude",
+            "6: (-)RNA-S, crude",
+            "7: (+)RNA-O, StrTrap",
+            "8: (-)RNA-O, StrTrap",
+            "9: (+)RNA-S, StrTrap",
+            "10: (-)RNA-S, StrTrap",
+            "11: (+)RNA-O, CIEX",
+            "12: (-)RNA-O, CIEX",
+            "13: (+)RNA-S, CIEX",
+            "14: (-)RNA-S, CIEX",
+            "15: (+) reporter",
+            "16: (-) air")
+```
+
+```{r}
+## LOESS regression,
+p <- ggplot(data = df) + 
+  aes(x = MeasTimeSec, y=RFU) +
+  geom_smooth(aes(color=SampleNo)) +
+  geom_point(aes(colour=SampleNo))
+
+#' Panel of plots
+p+facet_wrap(~SampleNo) +
+  #coord_cartesian(xlim = c(0,1000)) +
+  labs(title = "RNAse activity test", x = "sec", y = "RFU") +
+  scale_colour_discrete(name=name, breaks=breaks, labels=labels)
+
+#' All conditions together
+  p + labs(title = "RNAse activity test", x = "sec",   y = "RFU", color = "Legend Title\n") +
+  #coord_cartesian(xlim = c(0,1000)) +
+  scale_colour_discrete(name=name, breaks=breaks, labels=labels)
+
+
+```
+
+
+### Plots of subsets of samples and conditions
+
+```{r subsets, include=TRUE, echo=TRUE, eval=TRUE}
+## Crude Orf1ab
+p1 <- df[df$SampleNo==1|df$SampleNo==2|df$SampleNo==3|df$SampleNo==4,]
+## Crude S
+p2 <- df[df$SampleNo==5|df$SampleNo==6,]
+## StrepTrap Orf1ab
+p3 <- df[df$SampleNo==7|df$SampleNo==8,]
+## StrepTrap S
+p4 <- df[df$SampleNo==9|df$SampleNo==10,]
+## CIEX Orf1ab
+p5 <- df[df$SampleNo==11|df$SampleNo==12,]
+## CIEX S
+p6 <- df[df$SampleNo==13|df$SampleNo==14,]
+## substrate and air
+p7 <- df[df$SampleNo==15|df$SampleNo=="air",]
+
+myplots <- list("p1"=p1,"p2"=p2,"p3"=p3,"p4"=p4,"p5"=p5,"p6"=p6,"p7"=p7)
+class(myplots)
+str(myplots)
+
+
+## LOESS regression
+for(p in myplots){
+p <- as.data.frame(p)
+
+print(ggplot(data = p) +
+  aes(x = MeasTimeSec, y=RFU) +
+  geom_smooth(aes(color=SampleNo)) +
+  geom_point(aes(colour=SampleNo)) +
+  labs(title = "RNAse activity test", x = "sec",   y = "RFU", color = "Legend Title\n") +
+  #coord_cartesian(xlim = c(0,1000)) +
+  scale_colour_discrete(name=name, breaks=breaks, labels=labels))
+
+}
+  
+    
+```
+
+## Conclutions
+### Notes:
+Replicate 1 from samples 1-8 had to be removed, likely bubble in the multichannel pipette.
+
+
+### What's next...?
+
+
+
+-----------------  
+-----------------
+
+
+

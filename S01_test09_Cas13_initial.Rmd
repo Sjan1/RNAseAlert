@@ -1,0 +1,185 @@
+---
+title: "RNAseAlert assay 09: Cas13 purification"
+author: "Jan Sklenar"
+date: "18/05/2020"
+output: html_document
+editor_options: 
+chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Cas13 activity test follwed through purification steps.
+
+
+## Protocol:
+![Copy of the original Excel table.](data/protocol9-1.svg)
+
+#### Original RNAaseAlert [kit manual](https://www.thermofisher.com/document-connect/document-connect.html?url=https%3A%2F%2Fassets.thermofisher.com%2FTFS-Assets%2FLSG%2Fmanuals%2Ffm_1964.pdf&title=Uk5hc2VBbGVydCZ0cmFkZTsgTGFiIFRlc3QgS2l0IEluc3RydWN0aW9uIE1hbnVhbA==)
+
+
+```{r libraries, echo=FALSE, include=FALSE}
+#library("plyr")
+library("dplyr")
+#library("tidyr")
+library("ggplot2")
+```
+
+## Data preparation
+### Read in the data and parse some sample names 
+```{r data, echo=TRUE, include=TRUE}
+## read in raw data
+raw <- read.delim("data/200518_Cas13_01_initial2020-05-18T125406.txt",stringsAsFactors = FALSE)
+colnames(raw)
+
+#' remove 'X' column
+raw <- raw[,1:10]
+#' change names
+colnames(raw)[7]
+colnames(raw)[7] <- "MeasTimeSec"
+
+#' parse 'Sample' to obtain sample number 'SampleNo'
+raw$Sample[1]
+#substr(raw$Sample,1,regexpr(' ', raw$Sample)-1) 
+raw$SampleNo <- substr(raw$Sample,1,regexpr(' ', raw$Sample)-1)
+
+#' in the same way extract replicate number - 'RepNo'
+#substr(raw$Sample,regexpr(' ', raw$Sample)+1, regexpr('/', raw$Sample)-1)
+raw$RepNo <- substr(raw$Sample,regexpr(' ', raw$Sample)+1, regexpr('/', raw$Sample)-1)
+
+#' remove white space from 'Well' sting
+#substr(raw$Well, 2, regexpr('$', raw$Well))[1:5]
+raw$Well<- substr(raw$Well, 2, regexpr('$', raw$Well))
+#' View(raw) 
+str(raw)
+```
+
+### Corrections
+Not this time.
+
+```{r corrections, include=FALSE, echo=FALSE, eval=FALSE}
+## ## Condition 1 and 2 are the same thing. Create new SampleComb where 2 is replace with 1
+
+raw$SampleComb <- raw$SampleNo 
+raw[raw$SampleComb==2,"SampleComb"] <- 1
+
+unique(raw$SampleNo)
+unique(raw$SampleComb)
+#' Which means the control with +RNAse has 8 replicates, unlike all the other conditions that has only 4. 
+```
+
+
+
+### Subset of data for plotting
+```{r cleaned data}
+## Selected (cleaned) data, only columns needed for plotting
+#' Well, Sample, SampleNo, RepNo, MeasTimeSec, RFU
+colnames(raw)
+df <- raw[,c(3,6,7,8,11,12)] 
+head(df) 
+str(df)
+```
+## Plots
+### All data
+```{r plots, eval=FALSE, include=FALSE, echo=FALSE}
+#' all the data
+#plot(x=raw$MeasTimeSec,y=raw$RFU)
+
+#' colour labeled samples
+ggplot(data = df) +
+  aes(x = MeasTimeSec, y=RFU) +
+  geom_point(aes(color=SampleNo))
+```
+
+
+
+```{r final result, include=FALSE, eval=FALSE, echo=FALSE}
+# ## Adjustments (only when needed)
+
+# ## Use summary statistics (mean) to find and remove obvious  outlier in  sample 3
+# #' means of all replicates of sample 3 
+# dfstat <- df %>% filter(Sample,No==1) %>% group_by(SampleNo,RepNo) %>% summarise(mean=mean(RFU))
+# dfstat
+# #' Data that should be removed
+# filter(df,SampleNo == 3 & RepNo == 3)
+# #' I could not invert the filter though
+# #' But it is the same as leaving out all the measurement from the well E01
+# dfs <- filter(df, Well != "E06")
+# #' all the measurements
+# length(rownames(df))
+# #'after 12 datapoints were removed
+# length(rownames(dfs))
+```
+
+### All data with description
+
+```{r }
+## Description
+name <- "Conditions"
+breaks <- c(1,2,3,4,5,6,7,"air")
+labels <- c("1: (+)RNA, crude",
+            "2: (+)RNA, StepTrap",
+            "3: (+)RNA, CIEX",
+            "4: (+-)RNA, crude",
+            "5: (-)RNA, StrepTrap",
+            "6: (-)RNA, CIEX",
+            "7: (+) reporter",
+            "8: (-) air")
+
+## LOESS regression,
+p <- ggplot(data = df) + 
+  aes(x = MeasTimeSec, y=RFU) +
+  geom_smooth(aes(color=SampleNo)) +
+  geom_point(aes(colour=SampleNo))
+
+#' Panel of plots
+p+facet_wrap(~SampleNo) +
+  #coord_cartesian(xlim = c(0,1000)) +
+  labs(title = "RNAse activity test", x = "sec", y = "RFU") +
+  scale_colour_discrete(name=name, breaks=breaks, labels=labels)
+
+#' All conditions together
+  p + labs(title = "RNAse activity test", x = "sec",   y = "RFU", color = "Legend Title\n") +
+  #coord_cartesian(xlim = c(0,1000)) +
+  scale_colour_discrete(name=name, breaks=breaks, labels=labels)
+
+
+```
+
+The warning notifies us we have zoomed in the plot by putting limits on axes.
+
+### Plots of subsets of selected conditions being tested
+
+```{r subsets, include=TRUE, echo=TRUE, eval=FALSE}
+
+## positive contorls vs some negative controls
+p <- df[raw$SampleNo==1|df$SampleNo==2|df$SampleNo==3|df$SampleNo==4|df$SampleNo==5|df$SampleNo==6|df$SampleNo==7|df$SampleNo=="air",]
+## LOESS regression
+p <- ggplot(data = p) +
+  aes(x = MeasTimeSec, y=RFU) +
+  geom_smooth(aes(color=SampleNo)) +
+  geom_point(aes(colour=SampleNo))
+
+
+p + labs(title = "RNAse activity test", x = "sec",   y = "RFU", color = "Legend Title\n") +
+  #coord_cartesian(xlim = c(0,1000)) +
+  scale_colour_discrete(name=name, breaks=breaks, labels=labels)
+
+
+  
+    
+```
+
+## Conclutions
+Notes:
+Sample 4 was mixed positive and negative RNA
+
+### What's next:
+Measure again with replicates and more of substrate. 
+
+-----------------  
+-----------------
+
+
+
