@@ -42,6 +42,11 @@ Something is wrong with the detection assay. We need to test the substrate and b
 #### Test 09-1: [Test of Cas13 purification stages-  quick and dirty](http://htmlpreview.github.io/?https://github.com/Sjan1/RNAseAlert/blob/master/S01_test09_Cas13_initial.html)
 #### Test 09-2: [Test of Cas13 purification stages - all with replicates](http://htmlpreview.github.io/?https://github.com/Sjan1/RNAseAlert/blob/master/S01_test09-2_Cas13_all.html)
 
+The reason for failure to detect any signal with Cas13 was that incorrect protein was expressed. When we rectify the problem, the next test should be decisive.
+
+#### Test 11-2: [New "correct" Cas13a](http://htmlpreview.github.io/?https://github.com/Sjan1/RNAseAlert/blob/master/S01_test11-2_correctCas13.html)
+
+Partial success!!
 
 <br/><br/>
 
