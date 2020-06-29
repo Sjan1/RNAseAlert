@@ -71,7 +71,7 @@ Partial success!!
 We have a sensitivity issue with our plate reader or 
 general set up such as plate type, volume, settings.
 
-#### Test 13: [Fluorescein test](http://htmlpreview.github.io/?https://github.com/Sjan1/RNAseAlert/blob/master/S01_test12_Fluorescein.html)
+#### Test 13: [Orf1ab dilutions in 384-well plate](http://htmlpreview.github.io/?https://github.com/Sjan1/RNAseAlert/blob/master/S01_test13_Orf1ab_Dilutions.html)
 
 It starts to look good, despite the sensitivity is still not what they publish.
 
