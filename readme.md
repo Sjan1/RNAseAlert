@@ -69,7 +69,12 @@ Partial success!!
 #### Test 12: [Fluorescein test](http://htmlpreview.github.io/?https://github.com/Sjan1/RNAseAlert/blob/master/S01_test12_Fluorescein.html)
 
 We have a sensitivity issue with our plate reader or 
-general set up, such as plate type, volume, settings.
+general set up such as plate type, volume, settings.
+
+#### Test 13: [Fluorescein test](http://htmlpreview.github.io/?https://github.com/Sjan1/RNAseAlert/blob/master/S01_test12_Fluorescein.html)
+
+It starts to look good, despite the sensitivity is still not what they publish.
+
 
 <br/><br/>
 
