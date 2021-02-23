@@ -75,6 +75,9 @@ general set up such as plate type, volume, settings.
 
 It starts to look good, despite the sensitivity is still not what they publish.
 
+#### Test 18: [Josie #4, 200819](http://htmlpreview.github.io/?https://github.com/Sjan1/RNAseAlert/blob/master/S01_test18_Josie_200819.html)
+
+Trying to find quantitative variable - gradient vs. sum of all data points. 
 
 <br/><br/>
 
